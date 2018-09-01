@@ -1,0 +1,44 @@
+
+--Create ECS cluster using cloud formation
+aws cloudformation create-stack 
+--template-body file://ecs-cluster.template 
+--stack-name EcsClusterStack 
+--capabilities CAPABILITY_IAM 
+--tags Key=Name,Value=ECS 
+--region us-east-1 
+--parameters ParameterKey=KeyName,ParameterValue=ansible-key 
+ParameterKey=EcsCluster,ParameterValue=getting-started ParameterKey=AsgMaxSize,ParameterValue=2
+
+
+execute
+aws cloudformation create-stack --template-body file://ecs-cluster.template --stack-name EcsClusterStack --capabilities CAPABILITY_IAM --tags Key=Name,Value=ECS --region us-east-1 --parameters ParameterKey=KeyName,ParameterValue=ansible-key ParameterKey=EcsCluster,ParameterValue=getting-started ParameterKey=AsgMaxSize,ParameterValue=2
+
+
+----now create jenkins stack using cloud formation
+aws cloudformation create-stack 
+--template-body file://ecs-jenkins-demo.template 
+--stack-name JenkinsStack 
+--capabilities CAPABILITY_IAM 
+--tags Key=Name,Value=Jenkins 
+--region us-east-1 
+--parameters ParameterKey=KeyName,ParameterValue=ansible-key ParameterKey=EcsStackName,ParameterValue=EcsClusterStack
+
+
+execute
+aws cloudformation create-stack --template-body file://ecs-jenkins-demo.template --stack-name JenkinsStack --capabilities CAPABILITY_IAM --tags Key=Name,Value=Jenkins --region us-east-1 --parameters ParameterKey=KeyName,ParameterValue=ansible-key ParameterKey=EcsStackName,ParameterValue=EcsClusterStack
+
+--can check host name
+aws ec2 describe-instances --filters "Name=tag-value","Values=JenkinsStack" --region us-east-1 | jq .Reservations[].Instances[].PublicDnsName
+
+now login to jenkins URL using public Ip
+SetUp jenkins and copy secureId and install plugins as below.
+1. Amazon ECR
+2. Cloud bees Docker build and publish
+3. github intergration
+
+create new job
+Free style job.
+set SCM from Git hub for helloworld project
+build section Execute shell
+
+
